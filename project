@@ -1,0 +1,63 @@
+import pandas as pd
+import numpy as np
+
+# Create a sample DataFrame
+data = {
+    'Date': pd.date_range(start='2023-01-01', periods=100, freq='D'),
+    'Sales': (np.random.rand(100) * 1000).round(2),  # Random sales data
+    'Category': np.random.choice(['category1', 'Category2', 'category3', 'category4'], 100),
+    'Region': np.random.choice(['region1', 'region2', 'region3', 'region4'], 100)
+}
+
+df = pd.DataFrame(data)
+df.to_csv('sales_data.csv', index=False)
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the sales data
+df = pd.read_csv('sales_data.csv')
+
+# Display the first few rows of the dataset
+print(df.head())
+
+# Convert 'Date' column to datetime format
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Group by Date and sum the sales
+daily_sales = df.groupby('Date')['Sales'].sum().reset_index()
+
+# Group by Category and sum the sales
+category_sales = df.groupby('Category')['Sales'].sum().reset_index()
+
+# Group by Region and sum the sales
+region_sales = df.groupby('Region')['Sales'].sum().reset_index()
+
+# Visualization
+
+# Daily Sales Trend
+plt.figure(figsize=(12, 6))
+plt.plot(daily_sales['Date'], daily_sales['Sales'], marker='o', color='b')
+plt.title('Daily Sales Over Time')
+plt.xlabel('Date')
+plt.ylabel('Sales')
+plt.xticks(rotation=45)
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+# Sales by Category
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Sales', y='Category', data=category_sales, palette='viridis')
+plt.title('Sales by Category')
+plt.xlabel('Sales')
+plt.ylabel('Category')
+plt.show()
+
+# Sales by Region
+plt.figure(figsize=(10, 6))
+sns.barplot(x='Sales', y='Region', data=region_sales, palette='mako')
+plt.title('Sales by Region')
+plt.xlabel('Sales')
+plt.ylabel('Region')
+plt.show()
