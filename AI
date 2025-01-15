@@ -1,0 +1,69 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import requests
+
+# URL for the COVID-19 Johns Hopkins dataset (this is just an example)
+url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+
+# Fetch the data
+response = requests.get(url)
+
+# Save the content into a CSV file
+with open("covid19_data.csv", "wb") as f:
+    f.write(response.content)
+
+# Load data into a Pandas DataFrame
+df = pd.read_csv("covid19_data.csv")
+
+# Show the first few rows to understand the structure of the data
+print(df.head())
+
+# Data cleaning: Ensure we have proper data columns
+df = df.drop(columns=["Province/State", "Lat", "Long"])
+
+# Aggregate by Country/Region
+df_country = df.groupby('Country/Region').sum()
+
+
+plt.tight_layout()
+plt.legend()
+plt.show()
+
+# Plot daily new confirmed cases globally
+daily_cases = global_cases.diff().fillna(0)
+plt.figure(figsize=(10, 6))
+plt.plot(daily_cases, label='Daily New Confirmed Cases', color='r')
+plt.title('Daily New Global COVID-19 Confirmed Cases')
+plt.xlabel('Date')
+plt.ylabel('New Confirmed Cases')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.legend()
+plt.show()
+
+# Analyzing Deaths Over Time (similar process)
+url_deaths = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
+response_deaths = requests.get(url_deaths)
+
+# Save and load deaths data
+with open("covid19_deaths_data.csv", "wb") as f:
+    f.write(response_deaths.content)
+    df_deaths = pd.read_csv("covid19_deaths_data.csv")
+
+# Clean deaths data
+df_deaths = df_deaths.drop(columns=["Province/State", "Lat", "Long"])
+df_deaths_country = df_deaths.groupby('Country/Region').sum()
+df_deaths_country = df_deaths_country.transpose()
+df_deaths_country.index = pd.to_datetime(df_deaths_country.index)
+
+# Plot deaths over time
+global_deaths = df_deaths_country.sum(axis=1)
+plt.figure(figsize=(10, 6))
+plt.plot(df_deaths_country.index, global_deaths, label='Global Deaths', color='orange')
+plt.title('Global COVID-19 Deaths Over Time')
+plt.xlabel('Date')
+plt.ylabel('Deaths')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.legend()
+plt.show()
